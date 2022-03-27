@@ -162,9 +162,11 @@ void Notebook::show(int page_num) {
         if(!right_page){
             break;
         }
-        //we found the correct page now we need to decide how to print it.
-
-
+        cout<<"Row number : " + iter.first.substr(page_str.length()+1)<< "  ->";
+        for (int i = 0; i < n100; ++i) {
+            cout<<iter.second.at(i);
+        }
+        cout<<endl;
     }
 }
 
