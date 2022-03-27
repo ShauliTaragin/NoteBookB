@@ -33,7 +33,7 @@ Notebook::write(int page_num, int row, int column, ariel::Direction d, string to
     }
     //last case is if there is no room to write in that location.
     string what_I_Read = read(page_num, row, column, d,
-                                   static_cast<int>(to_write.length()));//read will check if the appropriate place is available
+                              static_cast<int>(to_write.length()));//read will check if the appropriate place is available
     for (unsigned int i = 0; i < what_I_Read.length(); ++i) {
         if (what_I_Read.at(i) != '_') {
             throw invalid_argument("Can't write your message in this location");
@@ -130,30 +130,43 @@ Notebook::erase(int page_num, int row, int column, ariel::Direction d,int length
             throw invalid_argument("Your message is too long");
         }
         string key_to_check = to_string(page_num) + "," + to_string(row);
-        int column_iterator =row;
-        for (int i = 0; i <length ; ++i) {
-            if(column_iterator > n99){ // if we need to move to a new row we do that.
-                key_to_check = to_string(page_num) + "," + to_string(row+1);
-                column_iterator=0;
+        if (this->notebook.find(key_to_check) == this->notebook.end()) {//if The row does not exist yet
+            array<char, n100> row_to_add{};
+            this->notebook[key_to_check] = row_to_add;//adding row to map
+            for (unsigned int j = 0; j < n100; ++j) {
+                notebook[key_to_check][j] = '_';
             }
-            this->notebook[key_to_check][static_cast<unsigned long>(column_iterator)]='~';
+        }
+        int column_iterator =row;
+        for (unsigned int i = 0; i <length ; ++i) {
+            this->notebook[key_to_check][static_cast<unsigned long>(column_iterator)+i]='~';
         }
     }
     else{
-        for (int i = 0; i <length ; ++i) {
-            string key_to_check = to_string(page_num) + "," + to_string(row+i);
-            this->notebook[key_to_check][static_cast<unsigned long>(column)]= '~';
+        for (unsigned int i = 0; i < length; i++) {
+            string key_to_check = to_string(page_num) + "," + to_string(static_cast<unsigned long>(row)+i);
+            if (this->notebook.find(key_to_check) == this->notebook.end()) {//if The row does not exist yet
+                //then we create it by adding '_' to all of it and the char in its correct location
+                array<char, n100> row_to_add{};
+                this->notebook[key_to_check] = row_to_add;
+                for (unsigned int j = 0; j < n100; ++j) {
+                    this->notebook[key_to_check][j] = '_';
+                }
+                this->notebook[key_to_check][static_cast<unsigned long>(column)] = '~';
+                //if this wont work consider first adding array to map and then changing it
+            } else {//the row already exits, and we have room to write where we need
+                this->notebook[key_to_check][static_cast<unsigned long>(column)] = '~';
+            }
         }
     }
-
 }
 
 void Notebook::show(int page_num) {
     string page_str = to_string(page_num);
-    bool right_page;
+    bool right_page= true;
     //loop over all notebook and find only the correct page to show.
     for (auto iter:this->notebook) {
-        for(int i = 0 ; i<page_str.length();i++) {
+        for(unsigned int i = 0 ; i<page_str.length();i++) {
             if (iter.first.at(i)!=page_str.at(i)){
                 right_page = false;
                 break;
@@ -162,8 +175,8 @@ void Notebook::show(int page_num) {
         if(!right_page){
             break;
         }
-        cout<<"Row number : " + iter.first.substr(page_str.length()+1)<< "  ->";
-        for (int i = 0; i < n100; ++i) {
+        cout<<"Row number : " + iter.first.substr(page_str.length()+1)<< "  ";
+        for (unsigned int i = 0; i < n100; ++i) {
             cout<<iter.second.at(i);
         }
         cout<<endl;
