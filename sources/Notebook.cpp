@@ -20,9 +20,6 @@ const int n100 = 100;
 void
 Notebook::write(int page_num, int row, int column, ariel::Direction d, string to_write) {
     //we first deal with 4 cases for which we need to throw an exception.
-    if (to_write.length() > n99) {
-        throw invalid_argument("Your message is too long");
-    }
     if (page_num < 0 || row < 0 || column < 0|| to_write.length() < 0) {
         throw invalid_argument("Please enter only positive parameters");
     }
@@ -60,6 +57,9 @@ Notebook::write(int page_num, int row, int column, ariel::Direction d, string to
             }
         }
     } else {//direction is Vertical
+        if(static_cast<unsigned long>(column)> n99){
+            throw invalid_argument("Your message is too long");
+        }
         for (unsigned int i = 0; i < to_write.length(); ++i) {
             string key_to_add = to_string(page_num) + "," + to_string(static_cast<unsigned long>(row) + i);
             if (this->notebook.find(key_to_add) == this->notebook.end()) {//if The row does not exist yet
@@ -79,9 +79,6 @@ Notebook::write(int page_num, int row, int column, ariel::Direction d, string to
 }
 
 string Notebook::read(int page_num, int row, int column, ariel::Direction d, int length) {
-    if (length > n99) {
-        throw invalid_argument("Your message is too long");
-    }
     if (page_num < 0 || row < 0 || column < 0 || length < 0) {
         throw invalid_argument("Please enter only positive parameters");
     }
@@ -104,6 +101,9 @@ string Notebook::read(int page_num, int row, int column, ariel::Direction d, int
         return what_I_read;
     }
     //direction is Vertical
+    if(static_cast<unsigned long>(column)> n99){
+        throw invalid_argument("Your message is too long");
+    }
     string what_I_read;
     for (int i = 0; i < length; i++) {
         string key_to_check = to_string(page_num) + "," + to_string(row+i);
@@ -119,9 +119,6 @@ string Notebook::read(int page_num, int row, int column, ariel::Direction d, int
 
 void
 Notebook::erase(int page_num, int row, int column, ariel::Direction d,int length) {
-    if (length > n99) {
-        throw invalid_argument("Your message is too long");
-    }
     if (page_num < 0 || row < 0 || column < 0|| length < 0) {
         throw invalid_argument("Please enter only positive parameters");
     }
@@ -137,12 +134,15 @@ Notebook::erase(int page_num, int row, int column, ariel::Direction d,int length
                 notebook[key_to_check][j] = '_';
             }
         }
-        int column_iterator =row;
+        int column_iterator =column;
         for (unsigned int i = 0; i <length ; ++i) {
             this->notebook[key_to_check][static_cast<unsigned long>(column_iterator)+i]='~';
         }
     }
     else{
+        if(static_cast<unsigned long>(column)> n99){
+            throw invalid_argument("Your message is too long");
+        }
         for (unsigned int i = 0; i < length; i++) {
             string key_to_check = to_string(page_num) + "," + to_string(static_cast<unsigned long>(row)+i);
             if (this->notebook.find(key_to_check) == this->notebook.end()) {//if The row does not exist yet
@@ -162,6 +162,9 @@ Notebook::erase(int page_num, int row, int column, ariel::Direction d,int length
 }
 
 void Notebook::show(int page_num) {
+    if (page_num < 0) {
+        throw invalid_argument("Please enter only positive parameters");
+    }
     string page_str = to_string(page_num);
     bool right_page= true;
     //loop over all notebook and find only the correct page to show.
